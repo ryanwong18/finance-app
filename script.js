@@ -8,6 +8,7 @@ myApp.apiKey = "73dd81a240fd490f9bf17b5bf8c2c369";
 myApp.form = document.querySelector("form");
 myApp.quote = document.querySelector(".stock");
 myApp.display = document.querySelector(".display");
+myApp.metrics = document.querySelector(".metrics");
 
 myApp.handleInputs = function(e) {
     //stops form from refreshing
@@ -21,29 +22,47 @@ myApp.handleInputs = function(e) {
 
 myApp.handleData = function(quote) {
     //API call
-    $.ajax({
+    const pricing = $.ajax({
         url: `https://services.last10k.com/v1/company/${quote}/prices`,
         method: "GET",
         dataType: "json",
         data: {
             key:myApp.apiKey
         }
-    }).then(res => {
-        myApp.displayData(res, quote);
-    })
+    });
+
+    const valuation = $.ajax({
+        url: `https://services.last10k.com/v1/company/${quote}/quote`,
+        method: "GET",
+        dataType: "json",
+        data: {
+            key:myApp.apiKey
+        }
+    });
+
+    $.when(pricing, valuation)
+        .then((...args) => {
+            const data = args
+                .map(value => value[0]);
+            myApp.displayData(data,)
+        });
 }
 
-myApp.displayData = function(data, quote) {
-    const initialData = data;
-    console.log(initialData);
+myApp.displayData = function(data) {
+    const priceData = data[0];
+    console.log(priceData);
+    const valuationData = data[1];
+    console.log(valuationData);
+    const stockName = valuationData.Name;
+    const pe = valuationData.PeRatio;   
     const titleArray = ["Date", "Stock Price"];
     const dataArray = [];
     const regex = new RegExp("T00:00:00", "gi");
 
-    //trim key name and push to an array
-    for(let key in initialData) {
+    // //trim key name and push to an array
+    for(let key in priceData) {
         const newKey = key.replace(regex, "");
-        dataArray.push([newKey, initialData[key]]);
+        dataArray.push([newKey, priceData[key]]);
     }
 
     //reverse the order of the array and add the titles to the front
@@ -54,7 +73,7 @@ myApp.displayData = function(data, quote) {
     const rawData = google.visualization.arrayToDataTable(dataArray);
 
     const displayOptions = {
-        title: `${quote}'s Historical Stock Price`,
+        title: `${stockName}'s Historical Stock Price`,
         curveType: 'function',
         legend: { position: 'bottom' }
     }
@@ -62,6 +81,30 @@ myApp.displayData = function(data, quote) {
     const chart = new google.visualization.LineChart(myApp.display);
 
     chart.draw(rawData, displayOptions);
+
+    //display valuation and stock information below graph
+    const {Symbol, MarketCapitalization, PeRatio, StockExchange, AverageDailyVolume} = valuationData;
+    
+    const stockTicker = document.createElement("li");
+    stockTicker.textContent = `Ticker: ${Symbol}`;
+    myApp.metrics.append(stockTicker);
+
+    const retrievePrice = dataArray[dataArray.length-1][1];
+    const stockPrice = document.createElement("li");
+    stockPrice.textContent = `Current Price: $${retrievePrice.toFixed(2)}`;
+    myApp.metrics.append(stockPrice);
+
+    const mCap = document.createElement("li");
+    mCap.textContent = `Market Capitalization: $${MarketCapitalization}`;
+    myApp.metrics.append(mCap);
+
+    const avgVolume = document.createElement("li");
+    avgVolume.textContent = `Average Daily Volume: ${AverageDailyVolume}`;
+    myApp.metrics.append(avgVolume);
+
+    const priceToEearnings = document.createElement("li");
+    priceToEearnings.textContent = `P/E Ratio: ${PeRatio ? PeRatio : "N/A"}`;
+    myApp.metrics.append(priceToEearnings);
 } 
 
 //when form is submitted, run the handleInputs function
