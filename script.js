@@ -83,10 +83,19 @@ myApp.displayData = function(data) {
     chart.draw(rawData, displayOptions);
 
     //display valuation and stock information below graph
-    const {Symbol, MarketCapitalization, PeRatio, StockExchange, AverageDailyVolume} = valuationData;
+    const {Symbol: ticker, MarketCapitalization, PeRatio, StockExchange, AverageDailyVolume, BookValue} = valuationData;
+    const convertVolume = AverageDailyVolume
+        .toString()
+        .replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
     
+    console.log(convertVolume);
+    
+    const exchange = document.createElement("li");
+    exchange.textContent = `Stock Exchange: ${StockExchange}`;
+    myApp.metrics.append(exchange);
+
     const stockTicker = document.createElement("li");
-    stockTicker.textContent = `Ticker: ${Symbol}`;
+    stockTicker.textContent = `Ticker: ${ticker}`;
     myApp.metrics.append(stockTicker);
 
     const retrievePrice = dataArray[dataArray.length-1][1];
@@ -99,12 +108,18 @@ myApp.displayData = function(data) {
     myApp.metrics.append(mCap);
 
     const avgVolume = document.createElement("li");
-    avgVolume.textContent = `Average Daily Volume: ${AverageDailyVolume}`;
+    avgVolume.textContent = `Average Daily Volume: ${convertVolume} shares`;
     myApp.metrics.append(avgVolume);
 
     const priceToEearnings = document.createElement("li");
-    priceToEearnings.textContent = `P/E Ratio: ${PeRatio ? PeRatio : "N/A"}`;
+    priceToEearnings.textContent = `P/E Ratio: ${PeRatio ? PeRatio : "N/A"} x`;
     myApp.metrics.append(priceToEearnings);
+
+    const priceToBook = document.createElement("li");
+    const pbvNumber = retrievePrice / BookValue;
+    console.log(pbvNumber);
+    priceToBook.textContent = `P/BV Ratio: ${pbvNumber ? pbvNumber.toFixed(2) : "N/A"} x`;
+    myApp.metrics.append(priceToBook);
 } 
 
 //when form is submitted, run the handleInputs function
