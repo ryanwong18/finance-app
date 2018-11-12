@@ -133,12 +133,46 @@ legend, button::-moz-focus-inner, input::-moz-focus-inner {
   box-sizing: border-box; }
 
 html {
-  font-size: 10px; }
+  font-size: 10px;
+  background-color: #50bfbf; }
 
 .wrapper {
   margin: 0 auto;
   max-width: 1280px; }
 
+h1 {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 3rem; }
+
+form {
+  text-align: center;
+  font-size: 1.5rem; }
+
+.error h2 {
+  text-align: center;
+  margin-top: 50px; }
+
+.information {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex; }
+
 .display {
-  width: 100%;
-  height: 600px; }
+  width: 60%;
+  height: 600px;
+  margin-left: 30px; }
+
+.metrics {
+  list-style-type: none;
+  padding-left: 0;
+  padding-top: 60px;
+  margin-right: 30px; }
+  .metrics li {
+    padding: 10px;
+    font-size: 1.5rem; }
+  .metrics h2 {
+    padding: 10px;
+    width: 80%;
+    line-height: 3rem;
+    font-size: 2rem; }

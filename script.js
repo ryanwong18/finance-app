@@ -9,6 +9,7 @@ myApp.form = document.querySelector("form");
 myApp.quote = document.querySelector(".stock");
 myApp.display = document.querySelector(".display");
 myApp.metrics = document.querySelector(".metrics");
+myApp.error = document.querySelector(".error");
 
 myApp.handleInputs = function(e) {
     //stops form from refreshing only if event exists, other stop function
@@ -18,8 +19,16 @@ myApp.handleInputs = function(e) {
 
     //clears the li elements from the metrics ul element
     myApp.metrics.innerHTML = "";
-
-    myApp.handleData(stockQuote);
+    myApp.error.innerHTML = "";
+    if(stockQuote) {
+        myApp.handleData(stockQuote);
+    }
+    else {
+        const error = document.createElement("h2");
+        error.textContent = `You forgot to enter a stock quote!`;
+        myApp.error.append(error);
+        myApp.display.innerHTML = "";
+    }
 
     //clears text entry in form
     this.reset();
@@ -80,7 +89,8 @@ myApp.displayData = function(data) {
         curveType: 'function',
         legend: { position: 'none' },
         hAxis: {title: "Date"},
-        vAxis: {title: "Price (US$)"}
+        vAxis: {title: "Price (US$)"},
+        backgroundColor: "#50bfbf"
     }
 
     const chart = new google.visualization.LineChart(myApp.display);
@@ -130,6 +140,19 @@ myApp.displayData = function(data) {
     const pbvNumber = retrievePrice / BookValue;
     priceToBook.textContent = `P/BV Ratio: ${pbvNumber ? pbvNumber.toFixed(2) : "N/A"} x`;
     myApp.metrics.append(priceToBook);
+
+    const valueDecision = document.createElement("h2");
+
+    if(!PeRatio || !pbvNumber) {
+        valueDecision.textContent = `At least one of the metrics does not make sense, so attractiveness is inconclusive`;
+    }
+    else if(PeRatio <= 15 && pbvNumber < 2) {
+        valueDecision.textContent = `Based on the P/E ratio and P/BV ratio, the stock appears to be cheap on a value basis`;
+    }
+    else {
+        valueDecision.textContent = `The stock does not appear to be attractive on a value basis`;
+    }
+    myApp.metrics.append(valueDecision);
 } 
 
 //all functions begin with handleInputs

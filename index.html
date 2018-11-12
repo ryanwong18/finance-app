@@ -8,20 +8,25 @@
     <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body>
-    <h1>Value Stock Screener (US Only)</h1>
+    <header>
+        <h1>Value Stock Screener (US Only)</h1>
+        <form action="">
+            <label for="quote">Stock Quote</label>
+            <input type="text" class="stock">
 
-    <form action="">
-        <label for="quote">Stock Quote</label>
-        <input type="text" class="stock">
-
-        <input type="submit">
-    </form>
-
-    <div class="display">
-    </div>
-    
-    <ul class="metrics">
-    </ul>
+            <input type="submit">
+        </form>
+        <div class="error">
+        </div>
+    </header>
+    <main>
+        <div class="information">
+            <div class="display">
+            </div>
+            <ul class="metrics">
+            </ul>
+        </div>
+    </main>
 
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
