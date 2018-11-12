@@ -11,9 +11,14 @@ myApp.display = document.querySelector(".display");
 myApp.metrics = document.querySelector(".metrics");
 
 myApp.handleInputs = function(e) {
-    //stops form from refreshing
-    e.preventDefault();
+    //stops form from refreshing only if event exists, other stop function
+    if(e === undefined) return;
+    else e.preventDefault();
     const stockQuote = myApp.quote.value;
+
+    //clears the li elements from the metrics ul element
+    myApp.metrics.innerHTML = "";
+
     myApp.handleData(stockQuote);
 
     //clears text entry in form
@@ -50,9 +55,7 @@ myApp.handleData = function(quote) {
 
 myApp.displayData = function(data) {
     const priceData = data[0];
-    console.log(priceData);
     const valuationData = data[1];
-    console.log(valuationData);
     const stockName = valuationData.Name;
     const pe = valuationData.PeRatio;   
     const titleArray = ["Date", "Stock Price"];
@@ -75,7 +78,9 @@ myApp.displayData = function(data) {
     const displayOptions = {
         title: `${stockName}'s Historical Stock Price`,
         curveType: 'function',
-        legend: { position: 'bottom' }
+        legend: { position: 'none' },
+        hAxis: {title: "Date"},
+        vAxis: {title: "Price (US$)"}
     }
 
     const chart = new google.visualization.LineChart(myApp.display);
@@ -83,12 +88,10 @@ myApp.displayData = function(data) {
     chart.draw(rawData, displayOptions);
 
     //display valuation and stock information below graph
-    const {Symbol: ticker, MarketCapitalization, PeRatio, StockExchange, AverageDailyVolume, BookValue} = valuationData;
+    const {Symbol: ticker, MarketCapitalization, PeRatio, StockExchange, AverageDailyVolume, BookValue, YearlyHigh, YearlyLow} = valuationData;
     const convertVolume = AverageDailyVolume
         .toString()
         .replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-    
-    console.log(convertVolume);
     
     const exchange = document.createElement("li");
     exchange.textContent = `Stock Exchange: ${StockExchange}`;
@@ -102,6 +105,14 @@ myApp.displayData = function(data) {
     const stockPrice = document.createElement("li");
     stockPrice.textContent = `Current Price: $${retrievePrice.toFixed(2)}`;
     myApp.metrics.append(stockPrice);
+
+    const priceYearHigh = document.createElement("li");
+    priceYearHigh.textContent = `52 Week High: $${YearlyHigh.toFixed(2)}`;
+    myApp.metrics.append(priceYearHigh);
+
+    const priceYearLow = document.createElement("li");
+    priceYearLow.textContent = `52 Week Low: $${YearlyLow.toFixed(2)}`;
+    myApp.metrics.append(priceYearLow);
 
     const mCap = document.createElement("li");
     mCap.textContent = `Market Capitalization: $${MarketCapitalization}`;
@@ -117,10 +128,19 @@ myApp.displayData = function(data) {
 
     const priceToBook = document.createElement("li");
     const pbvNumber = retrievePrice / BookValue;
-    console.log(pbvNumber);
     priceToBook.textContent = `P/BV Ratio: ${pbvNumber ? pbvNumber.toFixed(2) : "N/A"} x`;
     myApp.metrics.append(priceToBook);
 } 
+
+//all functions begin with handleInputs
+myApp.init = function () {
+    myApp.handleInputs();
+}
+
+//on document load, run the init function
+$(function () {
+    myApp.init();
+})
 
 //when form is submitted, run the handleInputs function
 myApp.form.addEventListener("submit", myApp.handleInputs);
